@@ -39,34 +39,41 @@ router.post(
     check("message", "You must have a message").not().isEmpty(),
   ],
   (req, res, next) => {
-    var name = req.body.name;
-    var email = req.body.email;
-    var message = req.body.message;
-    var content = `name: ${name} \nemail: ${email} \nmessage: ${message} `;
+    const errors = validationResult(req);
+    console.log(req.body);
 
-    var mail = {
-      from: name,
-      to: "schmager29@gmail.com",
-      subject: "New Message from Marcel-Schmager.com",
-      text: content,
-    };
+    if (!errors.isEmpty()) {
+      return res.status(422).jsonp(errors.array());
+    } else {
+      var name = req.body.name;
+      var email = req.body.email;
+      var message = req.body.message;
+      var content = `name: ${name} \nemail: ${email} \nmessage: ${message} `;
 
-    transporter.sendMail(mail, (err, data) => {
-      if (err) {
-        res.json({
-          status: "fail",
-        });
-      } else {
-        res.json({
-          status: "success",
-        });
-      }
-    });
+      var mail = {
+        from: name,
+        to: "schmager29@gmail.com",
+        subject: "New Message from Marcel-Schmager.com",
+        text: content,
+      };
+
+      transporter.sendMail(mail, (err, data) => {
+        if (err) {
+          res.json({
+            status: "fail",
+          });
+        } else {
+          res.json({
+            status: "success",
+          });
+        }
+      });
+    }
   }
 );
 
 const corsOption = {
-  origin: "http://marcel-schmager.com",
+  origin: "http://playground.marcel-schmager.com",
   optionsSuccessStatus: 200,
 };
 
