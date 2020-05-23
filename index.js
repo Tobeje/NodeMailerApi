@@ -35,7 +35,11 @@ router.post(
       .not()
       .isEmpty()
       .withMessage("Name must have more than 5 characters"),
-    check("email", "Your email is not valid").not().isEmpty(),
+    check("email", "Your email is not valid")
+      .not()
+      .isEmpty()
+      .isEmail()
+      .normalizeEmail(),
     check("message", "You must have a message").not().isEmpty(),
   ],
   (req, res, next) => {
