@@ -3,7 +3,7 @@ var router = express.Router();
 var nodemailer = require("nodemailer");
 var cors = require("cors");
 var creds = require("./config");
-var validator = require("express-validator");
+const { check, validationResult } = require("express-validator/check");
 
 var transport = {
   host: creds.SERVER,
@@ -26,37 +26,43 @@ transporter.verify((error, success) => {
 
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
-router.use(validator());
 
-router.post("/send", (req, res, next) => {
-  req.assert("name", "Name is needed").notEmpty();
-  req.assert("email", "Email is needed").notEmpty().isEmail();
-  req.assert("message", "Message is needed").notEmpty();
+router.post(
+  "/send",
+  [
+    check("name")
+      .not()
+      .isEmpty()
+      .withMessage("Name must have more than 5 characters"),
+    check("email", "Your email is not valid").not().isEmpty(),
+    check("message", "You must have a message").not().isEmpty(),
+  ],
+  (req, res, next) => {
+    var name = req.body.name;
+    var email = req.body.email;
+    var message = req.body.message;
+    var content = `name: ${name} \nemail: ${email} \nmessage: ${message} `;
 
-  var name = req.body.name;
-  var email = req.body.email;
-  var message = req.body.message;
-  var content = `name: ${name} \nemail: ${email} \nmessage: ${message} `;
+    var mail = {
+      from: name,
+      to: "schmager29@gmail.com",
+      subject: "New Message from Marcel-Schmager.com",
+      text: content,
+    };
 
-  var mail = {
-    from: name,
-    to: "schmager29@gmail.com",
-    subject: "New Message from Marcel-Schmager.com",
-    text: content,
-  };
-
-  transporter.sendMail(mail, (err, data) => {
-    if (err) {
-      res.json({
-        status: "fail",
-      });
-    } else {
-      res.json({
-        status: "success",
-      });
-    }
-  });
-});
+    transporter.sendMail(mail, (err, data) => {
+      if (err) {
+        res.json({
+          status: "fail",
+        });
+      } else {
+        res.json({
+          status: "success",
+        });
+      }
+    });
+  }
+);
 
 const corsOption = {
   origin: "http://marcel-schmager.com",
