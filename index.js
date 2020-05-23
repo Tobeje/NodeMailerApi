@@ -3,6 +3,7 @@ var router = express.Router();
 var nodemailer = require("nodemailer");
 var cors = require("cors");
 var creds = require("./config");
+var bodyParser = require("body-parser");
 const { check, validationResult } = require("express-validator/check");
 
 var transport = {
